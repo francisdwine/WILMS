@@ -1,0 +1,74 @@
+{% extends 'wallet/base.html' %}
+{% load static %}
+
+{% block body_block %}
+
+<style>
+    .container-fluid {
+    background: url("{% static 'img/basebg.PNG' %}") no-repeat;
+    background-size: cover;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+  }
+    .custom-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    
+    .jumbotron {
+        padding: 30px;
+        text-align: center;
+        font-family: Arial, sans-serif;
+        background-color: rgba(254, 255, 255, 0.8); /* Darker background color */
+        color: #f8f9fa;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .jumbotron h1 {
+        font-size: 36px;
+        margin-bottom: 20px;
+    }
+
+    .jumbotron p {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+
+    table {
+        width: 100%;
+        margin-top: 30px;
+        border-collapse: collapse;
+    }
+
+    table th, table td {
+        padding: 10px;
+        border: 1px solid #ddd;
+    }
+</style>
+
+<div class="container custom-container">
+    <div class="jumbotron">
+        <h1 style="color: #000;">User Dashboard</h1>
+        <p style="color: #000;">Welcome, {{ request.user.email }}!</p>
+        <p style="color: #000;">Your Balance: {{ request.user.userprofileinfo.balance }}</p>
+        <!-- <table>
+            <tr>
+                <th style="color: #000;">User</th>
+                <th style="color: #000;">Balance</th>
+            </tr>
+            {% for profile in profiles %}
+            <tr>
+                <td>{{ profile.user.email }}</td>
+                <td>{{ profile.point_balance }}</td>
+            </tr>
+            {% endfor %}
+        </table> -->
+    </div>
+</div>
+
+{% endblock %}

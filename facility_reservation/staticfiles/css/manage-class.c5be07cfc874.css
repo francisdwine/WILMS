@@ -1,0 +1,35 @@
+
+
+
+.df {
+	color: #fff200;
+}
+
+.modal-header {
+	background-color: #fff200;
+}
+
+.remove {
+  	display: inline-block;
+	outline: none;
+	cursor: pointer;
+	background: #24a0ed;
+	text-align: center;
+	text-decoration: none;
+	font: 14px/100%;
+	padding-top: 5%;
+	padding-bottom: 5%;
+	padding-left: 10%;
+	padding-right: 10%;
+	-webkit-border-radius: .5em;
+	font-weight: bold;
+}
+
+#modalheader {
+	color: #000;
+	font-weight: bold;
+}
+
+.th {
+	background-color: #fff200;
+}

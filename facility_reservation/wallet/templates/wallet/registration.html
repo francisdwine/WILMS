@@ -1,0 +1,146 @@
+{% extends "wallet/base.html" %}
+{% load static %}
+
+{% block body_block %}
+<style>
+
+#page-content-wrapper {
+    background: url("{% static 'img/basebg.PNG' %}") no-repeat;
+    background-size: cover;
+    /* Add any other styles you need for #page-content-wrapper */
+  }
+
+  .custom-container {
+    /* Your container styles */
+    display: flex;
+    justify-content: center;
+  }
+
+  .jumbotron {
+  background-color: rgba(33, 37, 41, 0.7); /* Darker background color */
+  color: #ffffff; /* Light text color */
+  /* Other styles for the jumbotron */
+  margin: 0 auto;
+}
+  .custom-container {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: .3in;
+    padding-left: 150px;
+  }
+  h4 {
+    color: gray;
+  }
+  .regbtn {
+    margin-top: 1cm;
+    text-align: center;
+    margin-bottom: -1cm;
+  }
+  .logo {
+    width: 110px;
+    height: 100px;
+    margin-bottom: 20px;
+  }
+  .regform {
+    padding-left: 50px;
+  }
+  .btn-primary {
+    width: 500px;
+    background-color: #9C7B16;
+    border-radius: 50px;
+    padding: 10px 20px;
+  }
+  .btn-primary:hover {
+    background-color: #9C7B16;
+  }
+  .form-control {
+    width: 100%; /* Extend the width to 100% */
+    height: 40px;
+    border-radius: 10px;
+  }
+  .login-link {
+    display: block;
+    margin-top: 10px;
+    text-align: center;
+  }
+  .error-message {
+    color: red;
+  }
+  a:hover, a:active,a:link,a:visited {
+  color: #9C7B16;
+}
+</style>
+<div class="container custom-container">
+  <div class="jumbotron">
+    <center>
+    <img src="/static/img/title.png" alt="Logo" class="logo" style="width: 80%; max-width: 800px; margin-top: 20px; height: auto;">
+  
+    <div class="regform">
+      {% if registered %}
+      <h1>Thank you for registering!</h1>
+      {% else %}
+      <h1 style="font-family: 'Arial', sans-serif; color: #9c7b16;">Points and Coins</h1>
+
+      <h6 style="font-family: 'Arial', sans-serif; color: #ffffff;">Come and join us! Register your account.</h6>
+    </center>
+      <form id="register-form" method="post" action="{% url 'wallet:register' %}" onsubmit="return validateForm()">
+  {% csrf_token %}
+  <div class="form-group">
+    <label class="form-label" for="first_name">First Name<span class="required-field">:</span></label>
+    <input class="form-control rounded" type="text" name="first_name" placeholder="Enter your first name" id="id_first_name" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="last_name">Last Name<span class="required-field">:</span></label>
+    <input class="form-control rounded" type="text" name="last_name" placeholder="Enter your last name" id="id_last_name" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="email">Email<span class="required-field">:</span></label>
+    <input class="form-control rounded" type="email" name="email" placeholder="Enter your email" id="id_email" required>
+    <p id="email-error" class="error-message"></p>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="password">Password<span class="required-field">:</span></label>
+    <input class="form-control rounded" type="password" name="password" placeholder="Enter your password" id="id_password" required>
+  </div>
+  <div class="form-group">
+    <label class="form-label" for="confirm_password">Confirm Password<span class="required-field">:</span></label>
+    <input class="form-control rounded" type="password" name="confirm_password" placeholder="Confirm your password" id="id_confirm_password" required>
+    <p id="password-error" class="error-message"></p>
+  </div>
+       <div class="regbtn">
+          <input type="submit" name="" value="Register" class="btn btn-primary">
+        </div>
+      </form><br><br>
+      <p class="login-link">Already have an account? <a href="{% url 'wallet:user_login' %}">Log in</a></p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+<script>
+  function validateForm() {
+    var email = document.getElementById("id_email").value;
+    var password = document.getElementById("id_password").value;
+    var confirmPassword = document.getElementById("id_confirm_password").value;
+    var emailErrorElement = document.getElementById("email-error");
+    var passwordErrorElement = document.getElementById("password-error");
+    var emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+    if (!emailPattern.test(email)) {
+      emailErrorElement.innerHTML = "Invalid email address";
+      return false;
+    } else {
+      emailErrorElement.innerHTML = "";
+    }
+
+    if (password !== confirmPassword) {
+      passwordErrorElement.innerHTML = "Passwords do not match";
+      return false;
+    } else {
+      passwordErrorElement.innerHTML = "";
+    }
+
+    return true;
+  }
+</script>
+{% endblock %}

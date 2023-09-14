@@ -1,0 +1,164 @@
+  {% load static %}
+  .reg-body{
+      font-family: 'Montserrat';
+  }
+  .form-left{
+      background-color:#FFF000;
+      height:auto;
+  }
+  .form-container{
+      height:100%;
+  }
+  .form-body{
+      background-color:#FFFFFF;
+      padding: 15px  25px 15px 25px;
+  }
+  .form-body h4{
+      color:black !important;
+      margin:0px 0px 0px 0px;
+      padding: 0px 0px 0px 0px;
+  }
+  .form-input{
+      width:100%;
+  }
+  .form-column{
+      padding: 0px 10px 0px 0px;
+  }
+  .next-btn{
+      color:black !important;
+      border:0 !important;
+      background-color:#fff000 !important;
+      box-shadow:none !important;
+  }
+  .next-btn:active{
+      box-shadow:0px 0px 3px 3px #000000 !important;
+  }
+  #next-btn1{
+      float:right;
+      margin:0px 20px 0px 5px;
+  }
+  .prev-btn{
+      color:#fff000 !important;
+      border:-5px !important;
+      border-style:solid !important;
+      border-color:#fff000 !important;
+      background-color:#ffffff !important;
+      box-shadow:none !important;
+  }
+  .prev-btn:active{
+      box-shadow:0px 0px 3px 3px #000000 !important;
+  }
+  #prev-btn1{
+      margin:0px 20px 0px 5px !important;
+  }
+  .form-left{
+      z-index:0;
+  }
+  .form-column.form-header{
+      margin-bottom:15px;
+  }
+
+  /* -------------------------------------------------------------------------
+  VERTICAL STEPPERS
+-------------------------------------------------------------------------- */
+
+/* Steps */
+.step {
+  position: relative;
+  min-height: 3.5em;
+  color: gray;
+}
+.step + .step {
+  margin-top: 1.5em
+}
+.step > div:first-child {
+  position: static;
+  height: 0;
+}
+.step > div:not(:first-child) {
+  margin-left: 1.5em;
+  padding-left: 1em;
+}
+.step.step-active {
+  color: #4285f4
+}
+.step.step-active .circle {
+  background-color: #000000;
+  color: #FFFFFF;
+  box-shadow: 0 0 0 6px #000000;
+}
+
+/* Circle */
+.circle {
+  margin-top:20px;
+  //margin-left: 5px;
+  background: white;
+  position: relative;
+  width: 2.5em;
+  height: 2.5em;
+  line-height: 2.5em;
+  border-radius: 100%;
+  color: #000000;
+  text-align: center;
+  box-shadow: 0 0 0 2px #000000;
+}
+.circle-text{
+    font-size:20px;
+}
+.circle-text.active{
+    font-size:25px;
+    font-weight:bold;
+}
+
+/* Vertical Line */
+.circle:after {
+  content: ' ';
+  position: absolute;
+  display: block;
+  top: 1px;
+  right: 50%;
+  bottom: 1px;
+  left: 50%;
+  height: 100%;
+  width: 1px;
+  transform: scale(1, 2);
+  transform-origin: 50% -100%;
+  background-color: #000000;
+  z-index: -1;
+}
+.step:last-child .circle:after {
+  display: none
+}
+
+/* Stepper Titles */
+.title {
+  line-height: 1.5em;
+  font-weight: bold;
+}
+.caption {
+  font-size: 0.8em;
+}
+
+/*-----------------BOTTOM STEPPER---------------------*/
+.bottom-stepper{
+  background-color:gray;
+  height:10px;
+}
+.bottom-stepper.active{
+  background-color:#FFF000;
+}
+/*-----------------------------------------------------*/
+.icon{
+    height:50px;
+    width:45px;
+    display:block;
+}
+.icon.icon-revise{
+    background: url("/static/img/icon_revise.2086b4d38ba8.png");
+}
+.icon.icon-approve{
+    background: url("/static/img/icon_approve.cc1e2b2e6b6e.png");
+}
+.icon.icon-disapprove{
+    background: url("/static/img/icon_disapprove.1e3cc350869c.png");
+}

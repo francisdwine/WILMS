@@ -1,0 +1,9 @@
+.mentor-day {
+	margin-left: 10px;
+	width: 100px;
+}
+
+.mentor-day.clicked {
+	background: #FFF200;
+	font-weight: bold;
+}
