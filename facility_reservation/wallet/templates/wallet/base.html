@@ -83,13 +83,13 @@
             </div>
             <div class="list-group list-group-flush">
               {% if user.is_authenticated %}
-              <a href="{% url 'wallet:dashboard' %}" class="list-group-item list-group-item-action sidebar-link {% if 'dashboard' in request.path %}active-link{% endif %}">Dashboard</a>
-              <a href="{% url 'wallet:dashboard' %}" class="list-group-item list-group-item-action sidebar-link {% if 'dashboard' in request.path %}active-link{% endif %}">Requests</a>
-              <a href="{% url 'wallet:userlist' %}" class="list-group-item list-group-item-action sidebar-link {% if 'userlist' in request.path %}active-link{% endif %}">Users</a>
-              
+              <a href="{% url 'wallet:dashboard' %}" class="list-group-item list-group-item-action {% if 'dashboard' in request.path %}active-link{% endif %}">Dashboard</a>
+                <a href="{% url 'wallet:userlist' %}" class="list-group-item list-group-item-action {% if 'userlist' in request.path %}active-link{% endif %}">User List</a>
+                <a href="{% url 'wallet:logout' %}" class="list-group-item list-group-item-action">Logout</a>
+                
               <div style="margin-bottom: 350px;"></div> <!-- Add space here -->
               
-              <a href="{% url 'logout' %}" class="list-group-item list-group-item-action sidebar-link {% if 'logout' in request.path %}active-link{% endif %}">Logout</a>
+              <a href="{% url 'wallet:logout' %}" class="list-group-item list-group-item-action sidebar-link {% if 'logout' in request.path %}active-link{% endif %}">Logout</a>
               
               {% else %}
               <a href="/wallet/user_login/" class="list-group-item list-group-item-action sidebar-link"

@@ -1,27 +1,8 @@
-{% extends "wallet/base.html" %}
+{% extends 'wallet/base.html' %}
 {% load static %}
 
 {% block body_block %}
 <style>
-
-#page-content-wrapper {
-    background: url("{% static 'img/basebg.PNG' %}") no-repeat;
-    background-size: cover;
-    /* Add any other styles you need for #page-content-wrapper */
-  }
-
-  .custom-container {
-    /* Your container styles */
-    display: flex;
-    justify-content: center;
-  }
-
-  .jumbotron {
-  background-color: rgba(33, 37, 41, 0.7); /* Darker background color */
-  color: #ffffff; /* Light text color */
-  /* Other styles for the jumbotron */
-  margin: 0 auto;
-}
   .custom-container {
     max-width: 800px;
     margin-left: auto;
@@ -73,42 +54,38 @@
 </style>
 <div class="container custom-container">
   <div class="jumbotron">
-    <center>
-    <img src="/static/img/title.png" alt="Logo" class="logo" style="width: 80%; max-width: 800px; margin-top: 20px; height: auto;">
-  
+    <img src="{% static 'img/btitle.png' %}" alt="Logo" class="logo">
     <div class="regform">
       {% if registered %}
       <h1>Thank you for registering!</h1>
       {% else %}
-      <h1 style="font-family: 'Arial', sans-serif; color: #9c7b16;">Points and Coins</h1>
-
-      <h6 style="font-family: 'Arial', sans-serif; color: #ffffff;">Come and join us! Register your account.</h6>
-    </center>
-      <form id="register-form" method="post" action="{% url 'wallet:register' %}" onsubmit="return validateForm()">
-  {% csrf_token %}
-  <div class="form-group">
-    <label class="form-label" for="first_name">First Name<span class="required-field">:</span></label>
-    <input class="form-control rounded" type="text" name="first_name" placeholder="Enter your first name" id="id_first_name" required>
-  </div>
-  <div class="form-group">
-    <label class="form-label" for="last_name">Last Name<span class="required-field">:</span></label>
-    <input class="form-control rounded" type="text" name="last_name" placeholder="Enter your last name" id="id_last_name" required>
-  </div>
-  <div class="form-group">
-    <label class="form-label" for="email">Email<span class="required-field">:</span></label>
-    <input class="form-control rounded" type="email" name="email" placeholder="Enter your email" id="id_email" required>
-    <p id="email-error" class="error-message"></p>
-  </div>
-  <div class="form-group">
-    <label class="form-label" for="password">Password<span class="required-field">:</span></label>
-    <input class="form-control rounded" type="password" name="password" placeholder="Enter your password" id="id_password" required>
-  </div>
-  <div class="form-group">
-    <label class="form-label" for="confirm_password">Confirm Password<span class="required-field">:</span></label>
-    <input class="form-control rounded" type="password" name="confirm_password" placeholder="Confirm your password" id="id_confirm_password" required>
-    <p id="password-error" class="error-message"></p>
-  </div>
-       <div class="regbtn">
+      <h1>Points and Coins</h1>
+      <h4>Create Your Account</h4>
+      <form enctype="multipart/form-data" method="POST" onsubmit="return validateForm()">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="{{ profile_form.first_name.id_for_label }}">First Name:</label><br>
+          {{ profile_form.first_name }}
+        </div>
+        <div class="form-group">
+          <label for="{{ profile_form.last_name.id_for_label }}">Last Name:</label><br>
+          {{ profile_form.last_name }}
+        </div>
+        <div class="form-group">
+          <label for="{{ user_form.email.id_for_label }}">Email:</label><br>
+          {{ user_form.email }}
+          <p id="email-error" class="error-message"></p>
+        </div>
+        <div class="form-group">
+          <label for="{{ user_form.password.id_for_label }}">Password:</label><br>
+          {{ user_form.password }}
+        </div>
+        <div class="form-group">
+          <label for="{{ profile_form.confirm_password.id_for_label }}">Confirm Password:</label><br>
+          {{ profile_form.confirm_password }}
+          <p id="password-error" class="error-message"></p>
+        </div>
+        <div class="regbtn">
           <input type="submit" name="" value="Register" class="btn btn-primary">
         </div>
       </form><br><br>

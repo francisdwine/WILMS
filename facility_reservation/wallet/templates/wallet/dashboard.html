@@ -55,7 +55,8 @@
     <div class="jumbotron">
         <h1 style="color: #000;">User Dashboard</h1>
         <p style="color: #000;">Welcome, {{ request.user.email }}!</p>
-        <p style="color: #000;">Your Balance: {{ request.user.userprofileinfo.balance }}</p>
+        <p style="color: #000;">Your Point Balance: {{ point_balance }}</p>
+        <p style="color: #000;">Your Coin Balance: {{ coin_balance }}</p>
         <!-- <table>
             <tr>
                 <th style="color: #000;">User</th>
