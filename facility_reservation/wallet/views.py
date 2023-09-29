@@ -165,13 +165,13 @@
 #         return JsonResponse({'success': True})
 #     else:
 #         return JsonResponse({'success': False, 'message': 'Invalid request'})
-
+from django.db.models import Q
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from wallet.forms import UserForm, UserProfileInfoForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
-from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse, JsonResponse
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect
 from django.views import View
@@ -210,15 +210,26 @@ class RegisterView(View):
         profile_form = UserProfileInfoForm(request.POST)
 
         if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save(commit=False)
-            user.set_password(user.password)
-            user.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
-            registered = True
-            messages.success(request, 'Registration successful. Please log in.')
-            return redirect('wallet:user_login')
+            # Check if a user with the same first and last name exists
+            email = user_form.cleaned_data['email']
+            first_name = profile_form.cleaned_data['first_name']
+            last_name = profile_form.cleaned_data['last_name']
+
+            if User.objects.filter(email=email).exists() or UserProfileInfo.objects.filter(first_name=first_name,last_name=last_name).exists():
+                messages.error(request, 'A user with the same first name, last name, or email already exists.')
+            else:
+                user = user_form.save(commit=False)
+                user.set_password(user.password)
+                user.save()
+
+                profile = profile_form.save(commit=False)
+                profile.user = user
+                profile.save()
+
+                registered = True
+                messages.success(request, 'Registration successful. Please log in.')
+                return redirect('wallet:user_login')
+
         else:
             messages.error(request, 'Registration failed. Please correct the errors.')
             print(user_form.errors, profile_form.errors)
@@ -228,6 +239,7 @@ class RegisterView(View):
             'profile_form': profile_form,
             'registered': registered
         })
+
 
 class UserLoginView(View):
     def get(self, request):
@@ -242,7 +254,10 @@ class UserLoginView(View):
         if user:
             if user.is_active:
                 login(request, user)
-                return render(request, 'wallet/dashboard.html', {})
+                if user.is_superuser:
+                    return render(request, 'wallet/dashboard.html', {})
+                else:
+                    return render(request,'wallet/userDashboard.html',{})
             else:
                 return HttpResponse("Your account is not active.")
         else:
@@ -253,56 +268,91 @@ class UserLoginView(View):
 class DashboardView(View):
     @method_decorator(login_required)
     def get(self, request):
-        try:
-            profile = UserProfileInfo.objects.get(user_id=request.user)
-            coin_balance = profile.coin_balance
-            point_balance = profile.point_balance
-        except UserProfileInfo.DoesNotExist:
-            coin_balance = 0.0
-            point_balance = 0.0
+        if request.user.is_superuser:
+            try:
+                profile = UserProfileInfo.objects.get(user_id=request.user)
+                coin_balance = profile.coin_balance
+                point_balance = profile.point_balance
+            except UserProfileInfo.DoesNotExist:
+                coin_balance = 0.0
+                point_balance = 0.0
 
-        context = {
-            'coin_balance': coin_balance,
-            'point_balance': point_balance
-        }
+            context = {
+                'coin_balance': coin_balance,
+                'point_balance': point_balance
+            }
 
-        return render(request, 'wallet/dashboard.html', context)
+            return render(request, 'wallet/dashboard.html', context)
+        else:
+            response_data = {'message': 'You do not have permission to access this page.'}
+            return JsonResponse(response_data, status=403)
 
 class UserListView(View):
     @method_decorator(login_required)
     def get(self, request):
-        try:
-            user_profile = UserProfileInfo.objects.get(user=request.user)
-            transactions = Transaction.objects.filter(recipient=user_profile.user)
-        except UserProfileInfo.DoesNotExist:
-            transactions = []
+        if request.user.is_superuser:
+            try:
+                user_profile = UserProfileInfo.objects.get(user=request.user)
+                transactions = Transaction.objects.all
+            except UserProfileInfo.DoesNotExist:
+                transactions = []
 
-        users = UserProfileInfo.objects.all()
-        context = {
-            'users': users,
-            'transactions': transactions,
-        }
-        return render(request, 'wallet/user_list.html', context)
+            users = UserProfileInfo.objects.all()
+            context = {
+                'users': users,
+                'transactions': transactions,
+            }
+            return render(request, 'wallet/user_list.html', context)
+        else:
+            return HttpResponseForbidden("You do not have permission to access this page.")
+
+class UserListView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        if request.user.is_superuser:
+            try:
+                transactions = Transaction.objects.all()
+                users = UserProfileInfo.objects.all()
+                userT=User.objects.all()
+            except UserProfileInfo.DoesNotExist:
+                transactions = []
+
+            
+            context = {
+                'users': users,
+                'transactions': transactions,
+                'userT':userT,
+            }
+            return render(request, 'wallet/user_list.html', context)
+        else:
+            return HttpResponseForbidden("You do not have permission to access this page.")
 
     @method_decorator(csrf_protect)
     def post(self, request):
         recipient_id = request.POST.get('recipient')
+        sender_id = request.POST.get('sender')
         points = float(request.POST.get('points'))
 
         try:
-            user = get_user_model().objects.get(id=recipient_id)
-            recipient_profile = UserProfileInfo.objects.get(user_id=user.id)
+            recipient = get_user_model().objects.get(id=recipient_id)
+            sender = get_user_model().objects.get(id=sender_id)  # Corrected this line
+
+            recipient_profile = UserProfileInfo.objects.get(user_id=recipient.id)
+            sender_profile = UserProfileInfo.objects.get(user_id=sender.id)  # Corrected this line
+                
             recipient_profile.point_balance += points
             recipient_profile.save()
 
-            transaction = Transaction.objects.create(recipient=user, points=points)
+            transaction = Transaction.objects.create(recipient=recipient, sender=sender, points=points)
 
             users = UserProfileInfo.objects.all()
             user_data = []
             for user in users:
+                full_name = f"{user.first_name} {user.last_name}"
                 user_data.append({
                     'email': user.user.email,
                     'id': user.profile_id,
+                    'name':full_name,
                     'first_name': user.first_name,
                     'last_name': user.last_name,
                     'point_balance': user.point_balance,
@@ -312,6 +362,7 @@ class UserListView(View):
 
         except (get_user_model().DoesNotExist, UserProfileInfo.DoesNotExist):
             pass
+
 
 class StoreTransactionView(View):
     def post(self, request):
@@ -328,3 +379,52 @@ class StoreTransactionView(View):
             return JsonResponse({'success': True})
         else:
             return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+class UserDashboardView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        try:
+            profile = UserProfileInfo.objects.get(user_id=request.user)
+            first_name=profile.first_name
+            coin_balance = profile.coin_balance
+            point_balance = profile.point_balance
+        except UserProfileInfo.DoesNotExist:
+            coin_balance = 0.0
+            point_balance = 0.0
+
+        context = {
+            'coin_balance': coin_balance,
+            'point_balance': point_balance,
+            'first_name':first_name
+        }
+        return render(request, 'wallet/userDashboard.html',context)
+    
+class PointsDashboardView(View):
+    @method_decorator(login_required)
+    def get(self, request):
+        try:
+            
+            profile = UserProfileInfo.objects.get(user_id=request.user)
+            coin_balance = profile.coin_balance
+            point_balance = profile.point_balance
+            first_tname = profile.first_name
+            last_name = profile.last_name
+            user_profile = UserProfileInfo.objects.get(user=request.user)
+            transactions = Transaction.objects.filter(recipient=user_profile.user)
+        except UserProfileInfo.DoesNotExist:
+            coin_balance = 0.0
+            point_balance = 0.0
+            transactions = []
+            
+        
+        context = {
+            'coin_balance': coin_balance,
+            'point_balance': point_balance,
+            'first_name':first_tname,
+            'last_name':last_name,
+            'transactions': transactions,
+        }
+
+
+        return render(request, 'wallet/pdash.html', context)

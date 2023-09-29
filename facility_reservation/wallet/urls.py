@@ -14,16 +14,18 @@
 # ]
 
 from django.urls import path
-from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView, StoreTransactionView,UserLogoutView
+from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView, StoreTransactionView,UserLogoutView,UserDashboardView,PointsDashboardView
 
 app_name = 'wallet'
 
 urlpatterns = [
-    path('/', IndexView.as_view(), name='index'),
+    path('', IndexView.as_view(), name='index'),
     path('register/', RegisterView.as_view(), name='register'),
     path('user_login/', UserLoginView.as_view(), name='user_login'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),  
     path('user_list/', UserListView.as_view(), name='userlist'),
     path('store_transaction/', StoreTransactionView.as_view(), name='store_transaction'),
-    path('logout/',UserLogoutView.as_view(),name='logout')
+    path('logout/',UserLogoutView.as_view(),name='logout'),
+    path('usrdashboard/', UserDashboardView.as_view(), name='usrdashboard'), 
+    path('pdash/',PointsDashboardView.as_view(),name='pointsdash'),
 ]

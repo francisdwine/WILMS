@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Wallet</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.0/jquery.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <link href="{% static 'bootstrap-4.4.1-dist/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/simple-sidebar.css' %}" rel="stylesheet">
+    <link href="{% static 'css/styleBASE.css' %}" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'img/title.png' %}"/>
+    <link rel="stylesheet" href="{% static 'plugins/fontawesome-free/css/all.min.css' %}">
+    <!-- Scrollbar Custom CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+    <!-- Bootstrap core JavaScript -->
+    <!-- <script src="{% static 'js/jquery.min.js' %}"></script> -->
+    <!-- Font Awesome JS -->    
+    <script src="{% static 'bootstrap-4.4.1-dist/js/bootstrap.bundle.min.js' %}"></script>  
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js" integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ" crossorigin="anonymous"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js" integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY" crossorigin="anonymous"></script>    
+    {% block headerinclude %}
+    {% endblock %}
+</head>
+<!-- Style -->
+<style>
+
+.navbar-toggler {
+        color: #f8f9fa; /* Set the text color */
+        background-color: #9c7b16; /* Set the background color */
+        border-color: #ffff; /* Set the border color */
+    }
+  .bg-custom-color {
+    background-color: #FECC00;
+    /* Add any additional styles you want */
+  }
+
+  .active-link {
+    color: #9C7B16; /* Change this color to your desired active link color */
+  }
+
+  /* Add styles for links */
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+
+  /* Add spacing between links */
+  .list-group-item:not(:valid) {
+    margin-left: 20px;
+    margin-bottom: 10px;
+    max-width: 80%;
+    border-radius: 15px;
+    background-color: #f8f9fa;
+
+  }
+
+
+  
+   /* .container-fluid{
+      background-color: #f8f9fa;
+     **/
+
+  
+
+
+</style>
+<body>
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar -->
+        <div class="bg-custom-color border-right" id="sidebar-wrapper">
+            <div class="sidebar-heading text-center">
+                <img src="{% static 'img/btitle.png' %}" width="110" height="100" class="d-inline-block align-top" alt="">
+                <br>Wallet
+            </div>
+            <div class="list-group list-group-flush">
+              {% if user.is_authenticated %}
+              <!-- <a href="{% url 'wallet:dashboard' %}" class="list-group-item list-group-item-action {% if 'dashboard' in request.path %}active-link{% endif %}">Dashboard</a>
+                <a href="{% url 'wallet:userlist' %}" class="list-group-item list-group-item-action {% if 'userlist' in request.path %}active-link{% endif %}">User List</a>
+                <a href="{% url 'wallet:logout' %}" class="list-group-item list-group-item-action">Logout</a>
+                 -->
+                    <a href="{% url 'wallet:usrdashboard' %}" class="list-group-item list-group-item-action {% if 'dashboard' in request.path %}active-link{% endif %}">Dashboard</a>
+                    <a  class="list-group-item list-group-item-action">Coins</a>
+                    <a href="{% url 'wallet:pointsdash' %}" class="list-group-item list-group-item-action">Points</a>
+              <div style="margin-bottom: 350px;"></div> <!-- Add space here -->
+              
+              <a href="{% url 'wallet:logout' %}" class="list-group-item list-group-item-action sidebar-link {% if 'logout' in request.path %}active-link{% endif %}">Logout</a>
+              
+              {% else %}
+              <a href="/wallet/user_login/" class="list-group-item list-group-item-action sidebar-link"
+              onmouseover="this.style.backgroundColor='#f5f5f5'"
+              onmouseenter="this.insertAdjacentHTML('beforebegin', '<span class=\'highlight-box\'></span>')"
+              onmouseleave="this.previousSibling.remove()">
+              Login
+           </a>
+                  <a href="{% url 'wallet:register' %}" class="list-group-item list-group-item-action sidebar-link {% if 'register' in request.path %}active-link{% endif %}">Register</a>
+              {% endif %}
+          </div>
+          
+        </div>
+        <!-- /#sidebar-wrapper -->
+
+        <!-- Page Content -->
+        <div id="page-content-wrapper", style="background-color: #f8f9fa;">
+         
+            <div class="container-fluid">
+                {% block body_block %}
+                {% endblock %}
+            </div>
+        </div>
+        <!-- /#page-content-wrapper -->
+    </div>
+    <!-- /#wrapper -->
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script src="{% static 'bootstrap-4.4.1-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <!-- Custom scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+    </script>
+</body>
+</html>

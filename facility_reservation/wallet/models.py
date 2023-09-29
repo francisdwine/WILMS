@@ -59,7 +59,8 @@ class UserProfileInfo(models.Model):
 
 class Transaction(models.Model):
     transactionID = models.AutoField(primary_key=True)
-    recipient = models.ForeignKey(User, on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User,related_name='transaction_reciepient', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User,related_name='transaction_sender', on_delete=models.CASCADE)
     points = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     date = models.DateField(auto_now_add=True)
     time = models.TimeField(auto_now_add=True)
