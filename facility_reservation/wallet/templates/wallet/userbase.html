@@ -87,9 +87,9 @@
                 <a href="{% url 'wallet:userlist' %}" class="list-group-item list-group-item-action {% if 'userlist' in request.path %}active-link{% endif %}">User List</a>
                 <a href="{% url 'wallet:logout' %}" class="list-group-item list-group-item-action">Logout</a>
                  -->
-                    <a href="{% url 'wallet:usrdashboard' %}" class="list-group-item list-group-item-action {% if 'dashboard' in request.path %}active-link{% endif %}">Dashboard</a>
-                    <a  class="list-group-item list-group-item-action">Coins</a>
-                    <a href="{% url 'wallet:pointsdash' %}" class="list-group-item list-group-item-action">Points</a>
+                    <a href="{% url 'wallet:usrdashboard' %}" class="list-group-item list-group-item-action {% if 'usrdashboard' in request.path %}active-link{% endif %}">Dashboard</a>
+                    <a href="{% url 'wallet:create-coin-transaction' %}"  class="list-group-item list-group-item-action {% if 'create-coin-transaction' in request.path %}active-link{% endif %}">Coins</a>
+                    <a href="{% url 'wallet:pointsdash' %}" class="list-group-item list-group-item-action {% if 'pdash' in request.path %}active-link{% endif %}">Points</a>
               <div style="margin-bottom: 350px;"></div> <!-- Add space here -->
               
               <a href="{% url 'wallet:logout' %}" class="list-group-item list-group-item-action sidebar-link {% if 'logout' in request.path %}active-link{% endif %}">Logout</a>

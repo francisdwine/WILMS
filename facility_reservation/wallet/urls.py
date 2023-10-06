@@ -1,20 +1,11 @@
-# from wallet import views
-# from django.urls import path
-
-# app_name= 'wallet'
-
-# urlpatterns = [
-#     # path("",views.home, name="home"),
-#     path('',views.index,name='index'),
-#     path('register/', views.register, name='register'),
-#     path('user_login/', views.user_login, name='user_login'),
-#     path('dashboard/', views.dashboard, name='dashboard'),
-#     path('user_list/', views.user_list, name='userlist'),
-#     path('store_transaction/', views.store_transaction, name='store_transaction'),
-# ]
-
 from django.urls import path
-from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView, StoreTransactionView,UserLogoutView,UserDashboardView,PointsDashboardView
+from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView, StoreTransactionView,UserLogoutView,UserDashboardView,PointsDashboardView, TransactionApprovalView,SuccessRedirectView,CoinTransactionCreateAndDashboardView,GetTransactionDetailsView
+
+# Increment 2
+from django.conf import settings
+from django.conf.urls.static import static  
+
+from . import views
 
 app_name = 'wallet'
 
@@ -28,4 +19,19 @@ urlpatterns = [
     path('logout/',UserLogoutView.as_view(),name='logout'),
     path('usrdashboard/', UserDashboardView.as_view(), name='usrdashboard'), 
     path('pdash/',PointsDashboardView.as_view(),name='pointsdash'),
+    # INCREMENT 2
+    path('createCoin/', CoinTransactionCreateAndDashboardView.as_view(), name='create-coin-transaction'),
+    
+    path('request/approval/', TransactionApprovalView.as_view(), name='request-approval'),
+    path('success/',SuccessRedirectView.as_view(),name='success'),
+
+    path('request/approval/approve-transaction/', views.approve_transaction, name='approve-transaction'),
+    path('request/approval/deny-transaction/', views.deny_transaction, name='deny-transaction'),
+    path('request/approval/get-transaction-details/', GetTransactionDetailsView.as_view(), name='get_transaction_details'),
+
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.conf import settings
+import uuid
 
 
 class UserManager(BaseUserManager):
@@ -67,3 +68,19 @@ class Transaction(models.Model):
     
     def __str__(self):
         return str(self.transactionID)
+    
+class CoinTransaction(models.Model):
+    reference_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
+    requestee = models.ForeignKey(User, related_name='coin_transactions_requested', on_delete=models.CASCADE)
+    amount = models.FloatField(default=0.0)
+    image_receipt = models.ImageField(upload_to='coin_transaction_receipts/')
+    date_in_receipt = models.DateField()
+    is_completed = models.BooleanField(default=False)
+    is_denied = models.BooleanField(default=False)
+
+    @property
+    def is_pending(self):
+        return not self.is_completed and not self.is_denied
+
+    def __str__(self):
+        return str(self.reference_code)
