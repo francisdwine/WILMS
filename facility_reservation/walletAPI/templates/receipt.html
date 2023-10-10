@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Receipt</title>
+</head>
+<body>
+    <h1>Transaction Receipt</h1>
+    <p><strong>Reference Code:</strong> {{ reference_code }}</p>
+    <p><strong>Transaction Date:</strong> {{ transaction_date }}</p>
+    <p><strong>Description:</strong> {{ description }}</p>
+    <p><strong>Transaction ID:</strong> {{ transaction_id }}</p>
+    <p><strong>Transaction Amount:</strong> {{ transaction_amount }}</p>
+    <p><strong>Currency:</strong> {{ currency }}</p>
+    <button id="logoutButton">Exit</button>
+
+    <script>
+        // Add a click event listener to the "Exit" button
+        document.getElementById('logoutButton').addEventListener('click', function () {
+            // Perform a logout action, you can use Django's logout view or your custom logic
+            // Example using Django's built-in logout view:
+            fetch('walletAPI/logout/')  // Replace with the URL for your logout view
+                .then(response => {
+                    // Redirect to the login page or any other desired destination
+                    window.location.href = 'walletAPI/login/';  // Replace with the desired URL
+                })
+                .catch(error => {
+                    console.error('Logout error:', error);
+                });
+        });
+    </script>
+</body>
+</html>
