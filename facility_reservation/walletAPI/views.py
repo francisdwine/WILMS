@@ -13,6 +13,13 @@ from django.views.generic import TemplateView
 from django.contrib.auth import logout
 
 from wallet.models import UserProfileInfo
+from rest_framework.authtoken.models import Token
+
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+
+from django.utils.decorators import method_decorator
+from rest_framework.decorators import authentication_classes, permission_classes
 
 
 from django.shortcuts import render, redirect
@@ -35,8 +42,7 @@ def login_view(request):
                 # Log the user in
                 login(request, user)
                 # Generate or retrieve an authentication token
-                token, created = Token.objects.get_or_create(user=user)
-                user_serializer = UserSerializer(user)
+                token, _ = Token.objects.get_or_create(user=user)
 
                 # Encode the token as a query parameter
                 token_param = urlencode({'token': token.key})
@@ -46,6 +52,7 @@ def login_view(request):
                 return redirect(redirect_url)
         
         return JsonResponse({'detail': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
+
 
 
 

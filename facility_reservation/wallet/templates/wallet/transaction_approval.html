@@ -51,6 +51,25 @@
         border: 1px solid #ddd;
     }
 
+    .table-container {
+        height: 400px;
+        overflow-y: scroll;
+    }
+
+    /* Add color styles for status cells */
+.status-pending {
+    color: yellow;
+}
+
+.status-completed {
+    color: green;
+}
+
+.status-denied {
+    color: red;
+}
+
+
 
 </style>
 
@@ -58,8 +77,16 @@
 <div class="container custom-container">
     <div class="jumbotron">
         <h1>Transaction Approval</h1>
-
-        <table class="table table-bordered table-hover">
+        <div class="form-group">
+            <label for="filter-select">Filter by Status:</label>
+            <select class="form-control" id="filter-select">
+                <option value="all">All</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="DENIED">Denied</option>
+                <option value="PENDING">Pending</option>
+            </select>
+        </div>
+        <table class="table table-bordered table-hover" id="transaction-table">
             <thead class="thead-dark">
                 <tr>
                     <th>Reference Code</th>
@@ -72,12 +99,12 @@
             </thead>
             <tbody>
                 {% for transaction in transactions %}
-                    <tr>
+                    <tr class="transaction-row {% if transaction.is_completed %}completed{% elif transaction.is_denied %}denied{% else %}pending{% endif %}">
                         <td>{{ transaction.reference_code }}</td>
                         <td>{{ transaction.requestee }}</td>
                         <td>{{ transaction.amount }}</td>
                         <td>{{ transaction.date_in_receipt }}</td>
-                        <td>
+                        <td class="{% if transaction.is_completed %}status-completed{% elif transaction.is_denied %}status-denied{% else %}status-pending{% endif %}">
                             {% if transaction.is_completed and not transaction.is_denied %}
                                 COMPLETED
                             {% elif transaction.is_denied and not transaction.is_completed %}
@@ -85,7 +112,7 @@
                             {% else %}
                                 PENDING
                             {% endif %}
-                        </td>
+                        </td>>
                         <td>
                             <!-- Button to trigger the modal -->
                             <button type="button" class="btn btn-primary view-details"
@@ -224,6 +251,38 @@ $(document).on('click', '.view-details', function () {
         });
     });
 
+</script>
+
+<script>
+$(document).ready(function () {
+    // Assuming your table has an ID of "transaction-table"
+    const table = document.querySelector('#transaction-table');
+    const statusFilter = document.querySelector('#filter-select'); // Use the correct ID here
+
+    // Set the default filter value to "Pending"
+    statusFilter.value = "PENDING";
+
+    // Function to filter transactions based on the selected status
+    function filterTransactions() {
+        const status = statusFilter.value;
+        const rows = table.querySelectorAll('tbody tr');
+
+        rows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(5)');
+            if (status === 'all' || statusCell.textContent.trim() === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    }
+
+    // Trigger the filtering function on page load
+    filterTransactions();
+
+    // Add an event listener to respond to changes in the status filter dropdown
+    statusFilter.addEventListener('change', filterTransactions);
+});
 
 </script>
 

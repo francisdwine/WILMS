@@ -37,16 +37,21 @@
   h2 {
       font-size: 24px;
   }
+
 </style>
 
 <div class="container">
+    
   <div class="jumbotron">
+    <img src="{% static 'img/title.png' %}" alt="Wallet System Logo" width="200" height="150">
+    <br><br>
       <h1 style="color: #fecc00;">WALLET SYSTEM</h1>
       {% if user.is_authenticated %}
           <h2>Welcome {{ request.user.email }}!</h2>
       {% else %}
           <h2>Welcome to Your Gateway to Effortless Transactions!</h2>
       {% endif %}
+
   </div>
 </div>
 

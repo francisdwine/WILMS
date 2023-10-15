@@ -17,6 +17,14 @@ import logging
 # added increment 2
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
+# added increment 3
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.views import PasswordChangeView
+from django.urls import reverse_lazy
+
+#added increment 4
+from walletAPI.models import VendorTransaction
+
 class IndexView(View):
     def get(self, request):
         return render(request, 'wallet/index.html')
@@ -94,15 +102,16 @@ class UserLoginView(View):
             if user.is_active:
                 login(request, user)
                 if user.is_superuser:
-                    return render(request, 'wallet/dashboard.html', {})
+                    return redirect('wallet:dashboard')
                 else:
-                    return render(request,'wallet/userDashboard.html',{})
+                    return redirect('wallet:usrdashboard')
             else:
                 return HttpResponse("Your account is not active.")
         else:
             print("Someone tried to login and failed.")
             print("They used email: {} and password: {}".format(email, password))
-            return HttpResponse("Invalid login details supplied." + email + " " + password)
+            # Show an alert when the login details are invalid
+            return HttpResponse('<script>alert("Invalid login details supplied."); window.location.href="/wallet/user_login/";</script>')
 
 class DashboardView(View):
     @method_decorator(login_required)
@@ -251,6 +260,7 @@ class PointsDashboardView(View):
             last_name = profile.last_name
             user_profile = UserProfileInfo.objects.get(user=request.user)
             transactions = Transaction.objects.filter(recipient=user_profile.user)
+            vendor_transactions = VendorTransaction.objects.filter(customer=user_profile.user, currency='Points')
         except UserProfileInfo.DoesNotExist:
             coin_balance = 0.0
             point_balance = 0.0
@@ -263,6 +273,7 @@ class PointsDashboardView(View):
             'first_name':first_tname,
             'last_name':last_name,
             'transactions': transactions,
+            'vendor_transactions': vendor_transactions,
         }
 
 
@@ -284,6 +295,7 @@ class CoinTransactionCreateAndDashboardView(LoginRequiredMixin, View):
             coin_balance = profile.coin_balance
             first_tname = profile.first_name
             last_name = profile.last_name
+            vendor_transactions = VendorTransaction.objects.filter(customer=profile.user, currency='Coins')
         except UserProfileInfo.DoesNotExist:
             coin_balance = 0.0
 
@@ -296,6 +308,7 @@ class CoinTransactionCreateAndDashboardView(LoginRequiredMixin, View):
             'first_name': first_tname,
             'last_name': last_name,
             'coin_transactions': coin_transactions,
+            'vendor_transactions': vendor_transactions,
         }
 
         return render(request, 'wallet/cointransaction_create_and_dashboard.html', context)
@@ -435,4 +448,28 @@ class GetTransactionDetailsView(UserPassesTestMixin, View):
 
         # If the transaction details retrieval fails or it's not a valid GET request, return an error response
         return JsonResponse({'status': 'fail', 'message': 'Transaction details retrieval failed.'})
+
+# Increment 3
+
+class SettingsView(LoginRequiredMixin, View):
+    template_name = 'wallet/settings.html'
+
+    def get(self, request):
+        user = request.user
+        context = {
+            'user': user,
+        }
+        return render(request, self.template_name, context)
+    
+
+
+class ChangePasswordView(PasswordChangeView):
+    template_name = 'wallet/change_password.html'  # Create a template for the change password page
+    success_url = reverse_lazy('wallet:change-password')  # Redirect to this URL after a successful password change
+
+    def form_valid(self, form):
+        response = super(ChangePasswordView, self).form_valid(form)
+        messages.success(self.request, 'Your password has been changed successfully.')
+        form.data = form.initial  # Clear the form data        
+        return response
 

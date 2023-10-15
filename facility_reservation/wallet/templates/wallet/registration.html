@@ -3,59 +3,84 @@
 
 {% block body_block %}
 <style>
-  .custom-container {
+  
+#page-content-wrapper {
+   background: url("{% static 'img/basebg.PNG' %}") no-repeat;
+   background-size: cover;
+   /* Add any other styles you need for #page-content-wrapper */
+ }
+
+
+ .jumbotron {
+ background-color: rgba(33, 37, 41, 0.7); /* Darker background color */
+ color: #ffffff;
+ margin: 0 auto;
+}
+.login-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 50px;
+  margin-bottom: auto;
+}
+
+.regform {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+.custom-container {
+    display: flex;
+    justify-content: center; /* Horizontally center the content */
+    align-items: center; /* Vertically center the content */
     max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: .3in;
+    margin: 0 auto;
+    margin-top: 0.3in;
     padding-left: 150px;
   }
-  h4 {
-    color: gray;
-  }
-  .regbtn {
-    margin-top: 1cm;
-    text-align: center;
-    margin-bottom: -1cm;
-  }
-  .logo {
-    width: 110px;
-    height: 100px;
-    margin-bottom: 20px;
-  }
-  .regform {
-    padding-left: 50px;
-  }
-  .btn-primary {
-    width: 500px;
-    background-color: #9C7B16;
-    border-radius: 50px;
-    padding: 10px 20px;
-  }
-  .btn-primary:hover {
-    background-color: #9C7B16;
-  }
-  .form-control {
-    width: 100%; /* Extend the width to 100% */
-    height: 40px;
-    border-radius: 10px;
-  }
-  .login-link {
-    display: block;
-    margin-top: 10px;
-    text-align: center;
-  }
-  .error-message {
-    color: red;
-  }
-  a:hover, a:active,a:link,a:visited {
-  color: #9C7B16;
-}
+
+ h1 {
+   color: #9C7B16;
+   margin-bottom: 20px;
+ }
+ .regbtn {
+   margin-top: 1cm;
+   text-align: center;
+   margin-bottom: -1cm;
+ }
+ .form-group {
+   margin-bottom: 20px;
+ }
+ .form-label {
+   font-weight: bold;
+ }
+ .form-control {
+   width: 100%;
+   height: 40px;
+   border-radius: 10px;
+ }
+ .btn-primary {
+   width: 500px;
+   background-color: #9C7B16;
+   border-radius: 50px;
+   padding: 10px 20px;
+ }
+ a:hover, a:active, a:link, a:visited {
+   color: #9C7B16;
+ }
+ .logo {
+   width: 110px;
+   height: 100px;
+   margin-bottom: 20px;
+
+ }
 </style>
+
 <div class="container custom-container">
   <div class="jumbotron">
-    <img src="{% static 'img/btitle.png' %}" alt="Logo" class="logo">
-    <div class="regform">
+    <img src="{% static 'img/title.png' %}" alt="Logo" class="logo" style="display: block; margin: 0 auto;">
+    <div class="regform" >
       {% if registered %}
       <h1>Thank you for registering!</h1>
       {% else %}
@@ -89,9 +114,11 @@
           <input type="submit" name="" value="Register" class="btn btn-primary">
         </div>
       </form><br><br>
-      <p class="login-link">Already have an account? <a href="{% url 'wallet:user_login' %}">Log in</a></p>
+      
     </div>
+    
     {% endif %}
+    <br><br><p class="login-link">Already have an account? <a href="{% url 'wallet:user_login' %}">Log in</a></p>
   </div>
 </div>
 <script>
