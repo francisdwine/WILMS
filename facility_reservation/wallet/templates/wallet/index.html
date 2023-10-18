@@ -1,59 +1,55 @@
-{% extends "wallet/base.html" %}
-{% load static %}
-{% block body_block %}
+{% extends "wallet/userbase.html" %} {% load static %} {% block body_block %}
 <style>
   .container-fluid {
     background: url("{% static 'img/basebg.PNG' %}") no-repeat;
     background-size: cover;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
   }
 
   .container {
-    
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
   }
 
   .jumbotron {
-    
-      text-align: center;
-      background-color: rgba(0, 0, 0, 0.7);
-      color: #ffffff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: #ffffff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   }
 
   h1 {
-      font-size: 48px;
-      margin-bottom: 20px;
+    font-size: 48px;
+    margin-bottom: 20px;
   }
 
   h2 {
-      font-size: 24px;
+    font-size: 24px;
   }
-
 </style>
 
 <div class="container">
-    
   <div class="jumbotron">
-    <img src="{% static 'img/title.png' %}" alt="Wallet System Logo" width="200" height="150">
-    <br><br>
-      <h1 style="color: #fecc00;">WALLET SYSTEM</h1>
-      {% if user.is_authenticated %}
-          <h2>Welcome {{ request.user.email }}!</h2>
-      {% else %}
-          <h2>Welcome to Your Gateway to Effortless Transactions!</h2>
-      {% endif %}
-
+    <img
+      src="{% static 'img/title.png' %}"
+      alt="Wallet System Logo"
+      width="200"
+      height="150"
+    />
+    <br /><br />
+    <h1 style="color: #fecc00">WALLET SYSTEM</h1>
+    {% if user.is_authenticated %}
+    <h2>Welcome {{ request.user.email }}!</h2>
+    {% else %}
+    <h2>Welcome to Your Gateway to Effortless Transactions!</h2>
+    {% endif %}
   </div>
 </div>
-
 
 {% endblock %}

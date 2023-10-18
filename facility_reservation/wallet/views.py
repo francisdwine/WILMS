@@ -7,7 +7,7 @@ from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpRespons
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
 from .decorators import superuser_required
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.views import View
 from .models import User, UserProfileInfo, Transaction,CoinTransaction
 from django.utils.decorators import method_decorator
@@ -135,24 +135,6 @@ class DashboardView(View):
             response_data = {'message': 'You do not have permission to access this page.'}
             return JsonResponse(response_data, status=403)
 
-class UserListView(View):
-    @method_decorator(login_required)
-    def get(self, request):
-        if request.user.is_superuser:
-            try:
-                user_profile = UserProfileInfo.objects.get(user=request.user)
-                transactions = Transaction.objects.all
-            except UserProfileInfo.DoesNotExist:
-                transactions = []
-
-            users = UserProfileInfo.objects.all()
-            context = {
-                'users': users,
-                'transactions': transactions,
-            }
-            return render(request, 'wallet/user_list.html', context)
-        else:
-            return HttpResponseForbidden("You do not have permission to access this page.")
 
 class UserListView(View):
     @method_decorator(login_required)
@@ -212,21 +194,21 @@ class UserListView(View):
             pass
 
 
-class StoreTransactionView(View):
-    def post(self, request):
-        if request.is_ajax():
-            recipient = request.POST.get('recipient')
-            points = float(request.POST.get('points'))
-            date = request.POST.get('date')
-            time = request.POST.get('time')
+# class StoreTransactionView(View):
+#     def post(self, request):
+#         if request.is_ajax():
+#             recipient = request.POST.get('recipient')
+#             points = float(request.POST.get('points'))
+#             date = request.POST.get('date')
+#             time = request.POST.get('time')
 
-            user = User.objects.get(email=recipient)
-            user.point_balance += points
-            user.save()
+#             user = User.objects.get(email=recipient)
+#             user.point_balance += points
+#             user.save()
 
-            return JsonResponse({'success': True})
-        else:
-            return JsonResponse({'success': False, 'message': 'Invalid request'})
+#             return JsonResponse({'success': True})
+#         else:
+#             return JsonResponse({'success': False, 'message': 'Invalid request'})
 
 
 class UserDashboardView(View):
@@ -472,4 +454,104 @@ class ChangePasswordView(PasswordChangeView):
         messages.success(self.request, 'Your password has been changed successfully.')
         form.data = form.initial  # Clear the form data        
         return response
+
+#Increment 4
+method_decorator(csrf_exempt)  # Use csrf_exempt for this view since you will be making an AJAX request
+class UpdateAccountTypeView(View):
+    def post(self, request, id):
+        user = get_object_or_404(get_user_model(), id=id)
+        is_superuser = request.POST.get('isSuperuser') == 'true'
+        is_staff = request.POST.get('isStaff') == 'true'
+
+        try:
+            user.is_superuser = is_superuser
+            user.is_staff = is_staff
+            user.save()
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    @method_decorator(login_required)
+    def get(self, request):
+        if request.user.is_superuser:
+            try:
+                user_profile = UserProfileInfo.objects.get(user=request.user)
+                transactions = Transaction.objects.all
+            except UserProfileInfo.DoesNotExist:
+                transactions = []
+
+            users = UserProfileInfo.objects.all()
+            context = {
+                'users': users,
+                'transactions': transactions,
+            }
+            return render(request, 'wallet/user_list.html', context)
+        else:
+            return HttpResponseForbidden("You do not have permission to access this page.")
+
+
+def is_teacher_user(user):
+    return user.is_staff  # Check if the user is a staff member (teacher)
+
+class TeacherUserListView(View):
+    @method_decorator(login_required)
+    @method_decorator(user_passes_test(is_teacher_user))
+    def get(self, request):
+        try:
+            # Filter transactions by the current user as sender
+            transactions = Transaction.objects.filter(sender=request.user)
+            users = UserProfileInfo.objects.all()
+            userT = get_user_model().objects.all()
+        except UserProfileInfo.DoesNotExist:
+            transactions = []
+
+        context = {
+            'users': users,
+            'transactions': transactions,
+            'userT': userT,
+        }
+        return render(request, 'wallet/teacher/teacher_user_list.html', context)
+
+    @method_decorator(csrf_protect)
+    def post(self, request):
+        recipient_id = request.POST.get('recipient')
+        sender_id = request.POST.get('sender')
+        points = float(request.POST.get('points'))
+
+        try:
+            recipient = get_user_model().objects.get(id=recipient_id)
+            sender = get_user_model().objects.get(id=sender_id)
+
+            # Check if the recipient is a regular user (not a superuser or teacher)
+            if recipient.is_staff or recipient.is_superuser:
+                return JsonResponse({'success': False, 'error': 'Teacher users can only give points to regular users.'})
+
+            recipient_profile = UserProfileInfo.objects.get(user_id=recipient.id)
+            sender_profile = UserProfileInfo.objects.get(user_id=sender.id)
+
+            recipient_profile.point_balance += points
+            recipient_profile.save()
+
+            transaction = Transaction.objects.create(recipient=recipient, sender=sender, points=points)
+
+            users = UserProfileInfo.objects.all()
+            user_data = []
+            for user in users:
+                full_name = f"{user.first_name} {user.last_name}"
+                user_data.append({
+                    'email': user.user.email,
+                    'id': user.profile_id,
+                    'name': full_name,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'point_balance': user.point_balance,
+                })
+
+            return JsonResponse({'success': True, 'users': user_data})
+
+        except (get_user_model().DoesNotExist, UserProfileInfo.DoesNotExist):
+            pass
+
+
+
 

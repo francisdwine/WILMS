@@ -76,9 +76,9 @@
 <!-- Modal for transaction details -->
 <div class="container custom-container">
     <div class="jumbotron">
-        <h1>Transaction Approval</h1>
+        <h1 style="color: black;">Transaction Approval</h1>
         <div class="form-group">
-            <label for="filter-select">Filter by Status:</label>
+            <label for="filter-select" style="color: black;">Filter by Status:</label>
             <select class="form-control" id="filter-select">
                 <option value="all">All</option>
                 <option value="COMPLETED">Completed</option>
@@ -86,8 +86,9 @@
                 <option value="PENDING">Pending</option>
             </select>
         </div>
+        <div class="table-container" style="max-height: 450px; overflow-y: auto;">
         <table class="table table-bordered table-hover" id="transaction-table">
-            <thead class="thead-dark">
+            <thead class="thead-dark" style="position: sticky; top: 0; background-color: white;">
                 <tr>
                     <th>Reference Code</th>
                     <th>Requestee</th>
@@ -126,6 +127,7 @@
                 {% endfor %}
             </tbody>
         </table>
+        
     </div>
 </div>
 

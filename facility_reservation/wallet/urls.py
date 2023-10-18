@@ -1,5 +1,5 @@
 from django.urls import path
-from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView, StoreTransactionView,UserLogoutView,UserDashboardView,PointsDashboardView, TransactionApprovalView,SuccessRedirectView,CoinTransactionCreateAndDashboardView,GetTransactionDetailsView,SettingsView,ChangePasswordView
+from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView,UserLogoutView,UserDashboardView,PointsDashboardView, TransactionApprovalView,SuccessRedirectView,CoinTransactionCreateAndDashboardView,GetTransactionDetailsView,SettingsView,ChangePasswordView, UpdateAccountTypeView, TeacherUserListView
 
 # Increment 2
 from django.conf import settings
@@ -17,7 +17,7 @@ urlpatterns = [
     path('user_login/', UserLoginView.as_view(), name='user_login'),
     path('dashboard/', DashboardView.as_view(), name='dashboard'),  
     path('user_list/', UserListView.as_view(), name='userlist'),
-    path('store_transaction/', StoreTransactionView.as_view(), name='store_transaction'),
+    # path('store_transaction/', StoreTransactionView.as_view(), name='store_transaction'),
     path('logout/',UserLogoutView.as_view(),name='logout'),
     path('usrdashboard/', UserDashboardView.as_view(), name='usrdashboard'), 
     path('pdash/',PointsDashboardView.as_view(),name='pointsdash'),
@@ -34,6 +34,13 @@ urlpatterns = [
     # INCREMENT 3
     path('settings/',SettingsView.as_view(),name='settings'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+
+    # INCREMENT 4
+    path('update_account_type/<int:id>/', UpdateAccountTypeView.as_view(), name='update_account_type'),
+    path('teacher_user_list/', TeacherUserListView.as_view(), name='teacheruserlist'),
+
+
+
 
 ]
 
