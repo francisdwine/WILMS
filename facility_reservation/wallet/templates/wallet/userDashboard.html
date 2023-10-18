@@ -1,89 +1,127 @@
-{% extends 'wallet/userbase.html' %}
-{% load static %}
-
-{% block body_block %}
+{% extends 'wallet/userbase.html' %} {% load static %} {% block body_block %}
 
 <style>
-    .container-fluid {
+  #page-content-wrapper {
     background: url("{% static 'img/basebg.PNG' %}") no-repeat;
     background-size: cover;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
   }
-    .custom-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
 
-    
-    .jumbotron {
-        padding: 30px;
-        text-align: center;
-        font-family: Arial, sans-serif;
-        background-color: rgba(254, 255, 255, 0.8); /* Darker background color */
-        color: #f8f9fa;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+.custom-button {
+    width: 300px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    text-align: center;
+    padding: 20px;
+    font-size: 30px;
+    font-weight: bold;
+    color: white;
+    border: solid black;
+    cursor: pointer;
+    margin-bottom: 10px;
+    -webkit-text-stroke: 1px black;
+  }
+  .btn-bg-1 {
+    background-image: url('{% static "img/technoBg.jpg" %}');
+  }
 
-    .jumbotron h1 {
-        font-size: 36px;
-        margin-bottom: 20px;
-    }
+  .btn-bg-2 {
+    background-image: url('{% static "img/coffee.png" %}');
+  }
+  .container-fluid {
+    background: url("{% static 'img/basebg.PNG' %}") no-repeat;
+    background-size: cover;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+  .custom-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
 
-    .jumbotron p {
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
+  .jumbotron {
+    padding: 30px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    background-color: rgba(254, 255, 255, 0.8); /* Darker background color */
+    color: #f8f9fa;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: fit-content;
+    height: 80%;
+  }
 
-    table {
-        width: 100%;
-        margin-top: 30px;
-        border-collapse: collapse;
-    }
+  .jumbotron h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
 
-    table th, table td {
-        padding: 10px;
-        border: 1px solid #ddd;
-    }
+  .jumbotron p {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
 
-    .box {
-            display: flex;
-            justify-content: center;
-            flex-direction: column;
-            width: 200px;; /* Set the width of the box */
-            height: 150px;; /* Set the height of the box */
-            border: 2px solid #333; /* Add a border */
-            border-radius: 10px;
-            padding: 20px; /* Add padding inside the box */
-        }
+  table {
+    width: 100%;
+    margin-top: 30px;
+    border-collapse: collapse;
+  }
 
+  table th,
+  table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+
+  .box {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 200px; /* Set the width of the box */
+    height: 150px; /* Set the height of the box */
+    border: 2px solid #333; /* Add a border */
+    border-radius: 10px;
+    padding: 20px; /* Add padding inside the box */
+  }
 </style>
 
 <div class="container custom-container">
-    <div class="jumbotron">
-        <h1 style="color: #000;">User Dashboard</h1>
-        <h3 style="color: #000;">Welcome, {{ first_name }}!</h3>
-        <div class="row">
-            <div class="col">
-                <p style="color: #000;">Points</p>
-                <div class="box" style="align-items: center; background-color: bisque;">
-                    <h4 style="color: #000;">{{ point_balance }}</h4>
-                </div>
-            </div>
-            <div class="col">
-                <p style="color: #000;">Coins</p>
-                <div class="box" style="align-items: center; background-color: bisque;">
-                    
-                    <h4 style="color: #000;">{{ coin_balance }}</h4>
-                </div>
-            </div>
+  <div class="jumbotron">
+    <h1 style="color: #000">User Dashboard</h1>
+    <h3 style="color: #000">Welcome, {{ first_name }}!</h3>
+    <div class="row">
+      <div class="col">
+        <p style="color: #000">Points</p>
+        <div class="box" style="align-items: center; background-color: bisque">
+          <h4 style="color: #000">{{ point_balance }}</h4>
         </div>
-        
+      </div>
+      <div class="col">
+        <p style="color: #000">Coins</p>
+        <div class="box" style="align-items: center; background-color: bisque">
+          <h4 style="color: #000">{{ coin_balance }}</h4>
+        </div>
+      </div>
     </div>
+    <br />
+    <div class="row justify-content-center">
+      <div class="col-6">
+        <p style="color: #000">Where to spend?</p>
+        <div class="box" style="align-items: center; background-color: bisque">
+          <button class="btn custom-button btn-lg btn-bg-1">
+            Make Reservation
+          </button>
+          <button class="btn custom-button btn-lg btn-bg-2">Buy Coffee</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-{% endblock %}
+  
+
+  {% endblock %}
+</div>

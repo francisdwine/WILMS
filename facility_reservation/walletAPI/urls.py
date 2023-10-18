@@ -5,6 +5,7 @@ from walletAPI.views import login_view, CreateVendorTransactionView,TransactionR
 app_name = 'walletAPI'
 
 urlpatterns = [
+    path('', login_view, name='login'),
     path('login/', login_view, name='login'),
     # Define other URL patterns for your API views
     path('create-transaction/', CreateVendorTransactionView.as_view(), name='create-transaction'),
