@@ -1,5 +1,5 @@
 from django.urls import path
-from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView,UserLogoutView,UserDashboardView,PointsDashboardView, TransactionApprovalView,SuccessRedirectView,CoinTransactionCreateAndDashboardView,GetTransactionDetailsView,SettingsView,ChangePasswordView, UpdateAccountTypeView, TeacherUserListView
+from wallet.views import IndexView, RegisterView, UserLoginView, DashboardView, UserListView,UserLogoutView,UserDashboardView,PointsDashboardView, TransactionApprovalView,SuccessRedirectView,CoinTransactionCreateAndDashboardView,GetTransactionDetailsView,SettingsView,ChangePasswordView, UpdateAccountTypeView, TeacherUserListView, AdminAwardPointsToTeacherView, ActivateAccountView,ScanAndDisplayRFIDView,EditUserProfileView
 
 # Increment 2
 from django.conf import settings
@@ -39,11 +39,23 @@ urlpatterns = [
     path('update_account_type/<int:id>/', UpdateAccountTypeView.as_view(), name='update_account_type'),
     path('teacher_user_list/', TeacherUserListView.as_view(), name='teacheruserlist'),
 
+    # BONUS CONTENT
+    path('award_points_to_teacher/', views.AdminAwardPointsToTeacherView.as_view(), name='award_points_to_teacher'),
+
+
+    # RFID
+    path('activate_account/', ActivateAccountView.as_view(), name='activate_account'),
+
+    # GRAB VALUES
+    path('scan/', ScanAndDisplayRFIDView.as_view(), name='scan'),
+
+    # EDIT PROFILE
+    path('edit_profile/', EditUserProfileView.as_view(), name='edit_profile'),
 
 
 
+    
 ]
-
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

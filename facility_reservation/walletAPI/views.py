@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import generics
 from .models import VendorTransaction
-from .serializers import UserSerializer, VendorTransactionSerializer
+from .serializers import UserSerializer, VendorTransactionSerializer,LoginUserProfileInfoSerializer, LoginUserSerializer
 from django.views.generic import TemplateView
 from django.contrib.auth import logout
 
@@ -20,6 +20,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from django.utils.decorators import method_decorator
 from rest_framework.decorators import authentication_classes, permission_classes
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 
 from django.shortcuts import render, redirect
@@ -139,3 +143,43 @@ def logout_view(request):
     
     # Redirect the user to the login page or any other desired destination
     return redirect('walletAPI:login')  # Replace 'login' with the name of your login 
+
+
+
+
+class CustomLoginAPIView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        user = authenticate(request, email=email, password=password)
+
+        if user:
+            if user.is_active:
+                login(request, user)
+
+                # Retrieve user profile information
+                try:
+                    user_profile = UserProfileInfo.objects.get(user=user)
+                except UserProfileInfo.DoesNotExist:
+                    user_profile = None
+
+                user_data = UserSerializer(user).data
+
+                if user_profile:
+                    user_profile_data = LoginUserProfileInfoSerializer(user_profile).data
+                else:
+                    user_profile_data = {}
+
+                # Combine the data into a single JSON response
+                response_data = {
+                    'user': user_data,
+                    'user_profile': user_profile_data
+                }
+
+                return Response(response_data)
+            else:
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+

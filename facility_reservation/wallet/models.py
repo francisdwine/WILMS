@@ -8,6 +8,7 @@ class UserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', False)
         extra_fields.setdefault('is_superuser', False)
+        extra_fields.setdefault('is_verified', False)
         
         if not email:
             raise ValueError('The Email field must be set')
@@ -34,7 +35,8 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)
     # Any additional fields or modifications you need
     objects = UserManager()
 
@@ -52,6 +54,10 @@ class UserProfileInfo(models.Model):
     last_name = models.CharField(max_length=100, null=True)
     coin_balance = models.FloatField(default=0.0)
     point_balance = models.FloatField(default=0.0)
+    points_to_give = models.FloatField(default=0.0)
+    profile_picture = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
+    rfid_value = models.CharField(max_length=50,unique=True, blank=True, null=True)  # Add this field for storing RFID values
+
 
     def __str__(self):
         return self.user.email
@@ -84,3 +90,14 @@ class CoinTransaction(models.Model):
 
     def __str__(self):
         return str(self.reference_code)
+
+
+
+# Bonus Content
+
+class AdminPointAward(models.Model):
+    admin = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_point_awards')
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='admin_received_point_awards')
+    points_awarded = models.DecimalField(max_digits=10, decimal_places=2)
+    date_awarded = models.DateTimeField(auto_now_add=True)
+    # Add any other relevant fields

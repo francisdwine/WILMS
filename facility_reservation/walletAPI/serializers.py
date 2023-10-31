@@ -29,3 +29,17 @@ class VendorTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = VendorTransaction
         fields = '__all__'
+
+
+# FOR LOGGING
+
+class LoginUserProfileInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfileInfo
+        fields = '__all__'
+
+class LoginUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'is_staff', 'is_active', 'is_verified']
+

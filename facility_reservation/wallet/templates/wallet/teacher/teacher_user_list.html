@@ -369,12 +369,15 @@
               // Update the point balance in the table or perform any other necessary actions
 
               $("#awardPointsModal").modal("hide"); // Hide the modal
-              window.location.reload();
               window.alert(
                 "\nYOU HAVE SUCCESSFULLY COMPLETED THE TRANSACTION.\n"
               );
+              window.location.reload();
             },
             error: function (xhr, status, error) {
+              window.alert(
+                "\nYOU HAVE INSUFFICIENT BALANCE FOR THE TRANSACTION.\n"
+              );
               // Handle the error response
               console.error(error); // Log the error for debugging purposes
               // Display an error message or perform any other necessary actions

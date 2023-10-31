@@ -1,7 +1,8 @@
+from django.views.generic.list import ListView
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse, reverse_lazy
-from wallet.forms import UserForm, UserProfileInfoForm,CoinTransactionForm, TransactionApprovalForm
+from wallet.forms import UserForm, UserProfileInfoForm,CoinTransactionForm, TransactionApprovalForm, UserProfileInfoUpdateForm
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse, JsonResponse
 from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
@@ -9,10 +10,13 @@ from .decorators import superuser_required
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.views import View
-from .models import User, UserProfileInfo, Transaction,CoinTransaction
+from .models import User, UserProfileInfo, Transaction,CoinTransaction,AdminPointAward
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView
 import logging
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 
 # added increment 2
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -24,6 +28,16 @@ from django.urls import reverse_lazy
 
 #added increment 4
 from walletAPI.models import VendorTransaction
+
+def is_verified_user(user):
+    return user.is_verified  # Check if the user is a verified user
+
+def is_teacher_user(user):
+    return user.is_staff  # Check if the user is a staff member (teacher)
+
+def is_superuser(user):
+    return user.is_superuser  # Check if the user is a superuser
+
 
 class IndexView(View):
     def get(self, request):
@@ -67,6 +81,7 @@ class RegisterView(View):
             else:
                 user = user_form.save(commit=False)
                 user.set_password(user.password)
+                # user.is_active = False
                 user.save()
 
                 profile = profile_form.save(commit=False)
@@ -106,12 +121,17 @@ class UserLoginView(View):
                 else:
                     return redirect('wallet:usrdashboard')
             else:
-                return HttpResponse("Your account is not active.")
+                print("Account is not active.")
+                return HttpResponse('<script>alert("Account is not active."); window.location.href="/wallet/user_login/";</script>')
         else:
-            print("Someone tried to login and failed.")
-            print("They used email: {} and password: {}".format(email, password))
-            # Show an alert when the login details are invalid
+            print("User is None.")
             return HttpResponse('<script>alert("Invalid login details supplied."); window.location.href="/wallet/user_login/";</script>')
+                    
+            
+            # print("Someone tried to login and failed.")
+            # print("They used email: {} and password: {}".format(email, password))
+            # Show an alert when the login details are invalid
+
 
 class DashboardView(View):
     @method_decorator(login_required)
@@ -134,7 +154,7 @@ class DashboardView(View):
         else:
             response_data = {'message': 'You do not have permission to access this page.'}
             return JsonResponse(response_data, status=403)
-
+            
 
 class UserListView(View):
     @method_decorator(login_required)
@@ -194,25 +214,9 @@ class UserListView(View):
             pass
 
 
-# class StoreTransactionView(View):
-#     def post(self, request):
-#         if request.is_ajax():
-#             recipient = request.POST.get('recipient')
-#             points = float(request.POST.get('points'))
-#             date = request.POST.get('date')
-#             time = request.POST.get('time')
-
-#             user = User.objects.get(email=recipient)
-#             user.point_balance += points
-#             user.save()
-
-#             return JsonResponse({'success': True})
-#         else:
-#             return JsonResponse({'success': False, 'message': 'Invalid request'})
-
-
 class UserDashboardView(View):
     @method_decorator(login_required)
+    @method_decorator(user_passes_test(is_verified_user))
     def get(self, request):
         try:
             profile = UserProfileInfo.objects.get(user_id=request.user)
@@ -232,6 +236,7 @@ class UserDashboardView(View):
     
 class PointsDashboardView(View):
     @method_decorator(login_required)
+    @method_decorator(user_passes_test(is_verified_user))
     def get(self, request):
         try:
             
@@ -270,6 +275,7 @@ class CoinTransactionCreateAndDashboardView(LoginRequiredMixin, View):
     template_name = 'wallet/cointransaction_create_and_dashboard.html'
     success_url = reverse_lazy('wallet:coin-transaction-create')
     success_message = "Transaction was successfully created."
+    @method_decorator(user_passes_test(is_verified_user))
 
     def get(self, request, *args, **kwargs):
         try:
@@ -347,8 +353,7 @@ class SuccessRedirectView(View):
 
 
 # Custom user test function to check if the user is a superuser
-def is_superuser(user):
-    return user.is_superuser
+
 
 @login_required
 @user_passes_test(is_superuser)
@@ -435,6 +440,7 @@ class GetTransactionDetailsView(UserPassesTestMixin, View):
 
 class SettingsView(LoginRequiredMixin, View):
     template_name = 'wallet/settings.html'
+    @method_decorator(user_passes_test(is_verified_user))
 
     def get(self, request):
         user = request.user
@@ -448,6 +454,7 @@ class SettingsView(LoginRequiredMixin, View):
 class ChangePasswordView(PasswordChangeView):
     template_name = 'wallet/change_password.html'  # Create a template for the change password page
     success_url = reverse_lazy('wallet:change-password')  # Redirect to this URL after a successful password change
+    @method_decorator(user_passes_test(is_verified_user))
 
     def form_valid(self, form):
         response = super(ChangePasswordView, self).form_valid(form)
@@ -490,18 +497,21 @@ class UpdateAccountTypeView(View):
             return HttpResponseForbidden("You do not have permission to access this page.")
 
 
-def is_teacher_user(user):
-    return user.is_staff  # Check if the user is a staff member (teacher)
 
+
+
+# teacher
 class TeacherUserListView(View):
     @method_decorator(login_required)
     @method_decorator(user_passes_test(is_teacher_user))
+    @method_decorator(user_passes_test(is_verified_user))
     def get(self, request):
         try:
             # Filter transactions by the current user as sender
             transactions = Transaction.objects.filter(sender=request.user)
             users = UserProfileInfo.objects.all()
             userT = get_user_model().objects.all()
+            teacher_profile = UserProfileInfo.objects.get(user=request.user)  # Get the teacher's profile
         except UserProfileInfo.DoesNotExist:
             transactions = []
 
@@ -509,6 +519,7 @@ class TeacherUserListView(View):
             'users': users,
             'transactions': transactions,
             'userT': userT,
+            'teacher_profile': teacher_profile,
         }
         return render(request, 'wallet/teacher/teacher_user_list.html', context)
 
@@ -529,29 +540,175 @@ class TeacherUserListView(View):
             recipient_profile = UserProfileInfo.objects.get(user_id=recipient.id)
             sender_profile = UserProfileInfo.objects.get(user_id=sender.id)
 
-            recipient_profile.point_balance += points
-            recipient_profile.save()
+            # Check if the teacher has enough points_to_give
+            if sender_profile.points_to_give >= points:
+                sender_profile.points_to_give -= points
+                sender_profile.save()
 
-            transaction = Transaction.objects.create(recipient=recipient, sender=sender, points=points)
+                recipient_profile.point_balance += points
+                recipient_profile.save()
 
-            users = UserProfileInfo.objects.all()
-            user_data = []
-            for user in users:
-                full_name = f"{user.first_name} {user.last_name}"
-                user_data.append({
-                    'email': user.user.email,
-                    'id': user.profile_id,
-                    'name': full_name,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'point_balance': user.point_balance,
-                })
+                transaction = Transaction.objects.create(recipient=recipient, sender=sender, points=points)
 
-            return JsonResponse({'success': True, 'users': user_data})
+                users = UserProfileInfo.objects.all()
+                user_data = []
+                for user in users:
+                    full_name = f"{user.first_name} {user.last_name}"
+                    user_data.append({
+                        'email': user.user.email,
+                        'id': user.profile_id,
+                        'name': full_name,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'point_balance': user.point_balance,
+                    })
+
+                return JsonResponse({'success': True, 'users': user_data})
+
+            else:
+                return JsonResponse({'success': False, 'error': 'Not enough points to award.'})
 
         except (get_user_model().DoesNotExist, UserProfileInfo.DoesNotExist):
             pass
 
+
+
+
+
+# Bonus Content
+
+
+
+class AdminAwardPointsToTeacherView(View):
+    template_name = 'wallet/admin_award_points_to_teacher.html'
+
+    @method_decorator(user_passes_test(lambda user: user.is_superuser))
+    def get(self, request):
+        # Retrieve a list of teacher users who have is_staff set to true
+        teachers = User.objects.filter(is_staff=True)
+        return render(request, self.template_name, {'teachers': teachers})
+
+    @method_decorator(user_passes_test(lambda user: user.is_superuser))
+    def post(self, request):
+        user_id = request.POST.get('teacher')  # Assuming the form field is named 'teacher'
+        points_awarded = float(request.POST.get('points_awarded', 0))
+
+        try:
+            teacher = User.objects.get(id=user_id)  # Get the user by their ID
+        except User.DoesNotExist:
+            messages.error(request, 'Selected teacher not found.')
+            return redirect('award_points_to_teacher')
+
+        if points_awarded <= 0:
+            messages.error(request, 'Points awarded must be greater than 0.')
+            return redirect('award_points_to_teacher')
+
+        # Create a new AdminPointAward record
+        AdminPointAward.objects.create(admin=request.user, teacher=teacher, points_awarded=points_awarded)
+
+        # Update the teacher's points_to_give
+        teacher_profile = UserProfileInfo.objects.get(user=teacher)
+        teacher_profile.points_to_give += points_awarded
+        teacher_profile.save()
+
+        messages.success(request, f'{points_awarded} points awarded to {teacher.email}.')
+        return redirect('wallet:award_points_to_teacher')
+    
+
+# RFID
+class ActivateAccountView(View):
+    template_name = 'wallet/activation.html'
+
+    def get(self, request):
+        return render(request, self.template_name, {})
+
+    def post(self, request):
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        rfid_value = request.POST.get('rfid_value')
+
+        user = authenticate(request, email=email, password=password)
+        print(user)
+
+        if user:
+            # Check if the user exists and is not active
+            user_profile = UserProfileInfo.objects.get(user=user)
+
+            if not user.is_verified:
+                # Check if the user is not verified
+                if user_profile.rfid_value is None:
+                    # If the RFID value is initially null, store the submitted RFID value
+                    user_profile.rfid_value = rfid_value
+                    user_profile.save()
+
+                if rfid_value == user_profile.rfid_value:
+                    # If the RFID value matches the stored value, activate the user's account
+                    user.is_active = True
+                    user.is_verified = True  # Mark the user as verified
+                    user.save()
+                    return JsonResponse({'success': True, 'message': 'Account activated.'})
+                else:
+                    return JsonResponse({'success': False, 'message': 'Invalid RFID value.'})
+            else:
+                # return JsonResponse({'success': False, 'message': 'The account is already verified and active.'})
+                return HttpResponse('<script>alert("The account is already verified and active."); window.location.href="/wallet/activate_account/";</script>')
+                
+        else:
+            # return JsonResponse({'success': False, 'message': 'Invalid login details supplied or the account is already active.'})
+            return HttpResponse('<script>alert("Invalid login details supplied or the account is already active");";</script>')
+  
+
+# Grab values
+class ScanAndDisplayRFIDView(View):
+    template_name = 'wallet/profile.html'
+    def get(self, request):
+            return render(request, self.template_name, {'user_info': None})
+    def post(self, request):
+        rfid_value = request.POST.get('rfid_value')
+        try:
+            user_profile = UserProfileInfo.objects.get(rfid_value=rfid_value)
+            print(user_profile.profile_picture)
+            return render(request, self.template_name, {'user_info': user_profile})
+        except UserProfileInfo.DoesNotExist:
+            return render(request, self.template_name, {'user_info': None, 'error_message': 'User not found for the specified RFID value.'})
+
+
+
+class EditUserProfileView(View):
+    template_name = 'wallet/edit_user_profile.html'
+    @method_decorator(user_passes_test(is_verified_user))
+    @method_decorator(login_required)
+    def get(self, request):
+        try:
+            
+            profile = UserProfileInfo.objects.get(user_id=request.user)
+            coin_balance = profile.coin_balance
+            point_balance = profile.point_balance
+            first_tname = profile.first_name
+            last_name = profile.last_name
+            profile_picture = profile.profile_picture
+            user_profile = UserProfileInfo.objects.get(user=request.user)
+        except UserProfileInfo.DoesNotExist:
+            user_profile=[]
+        
+        form = UserProfileInfoUpdateForm(instance=user_profile)
+
+        context = {
+            'coin_balance': coin_balance,
+            'point_balance': point_balance,
+            'first_name':first_tname,
+            'last_name':last_name,
+            'profile_picture':profile_picture,
+            'form': form,
+        }
+        return render(request, 'wallet/edit_user_profile.html', context)
+    def post(self, request):
+            user_profile = request.user.profile
+            form = UserProfileInfoUpdateForm(request.POST, request.FILES, instance=user_profile)
+            if form.is_valid():
+                form.save()
+                return redirect('wallet:userdashboard')  # Redirect to the user's profile page
+            return render(request, self.template_name, {'form': form, 'user_profile': user_profile})
 
 
 

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Add necessary HTML headers and links to stylesheets or scripts -->
+  </head>
+  <body>
+    <h1>Award Points to Teacher</h1>
+    <form method="post" action="{% url 'wallet:award_points_to_teacher' %}">
+      {% csrf_token %}
+      <label for="teacher">Select Teacher:</label>
+      <select id="teacher" name="teacher" required>
+        <option value="">Select a Teacher</option>
+        {% for teacher in teachers %}
+        <option value="{{ teacher.id }}">{{ teacher.email }}</option>
+        {% endfor %}
+      </select>
+      <br />
+      <label for="points_awarded">Points to Award:</label>
+      <input
+        type="number"
+        id="points_awarded"
+        name="points_awarded"
+        min="0"
+        step="1"
+        required
+      />
+      <button type="submit">Award Points</button>
+    </form>
+  </body>
+</html>

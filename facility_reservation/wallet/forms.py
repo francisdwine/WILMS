@@ -56,3 +56,9 @@ class TransactionApprovalForm(forms.ModelForm):
     class Meta:
         model = CoinTransaction
         fields = []  # No fields from the model, as this form is only for the action choice
+
+
+class UserProfileInfoUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfileInfo
+        fields = ('first_name', 'last_name', 'profile_picture')
