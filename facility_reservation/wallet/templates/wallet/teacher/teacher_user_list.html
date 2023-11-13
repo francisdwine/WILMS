@@ -48,9 +48,30 @@
     max-width: fit-content;
     margin: 10px;
 }
+    /* CSS for active and hover states */
+    .list-group-item {
+        /* Define the default styles for the list items */
+        background-color: #ffffff;
+        color: #000000;
+    }
+
+    .list-group-item:hover {
+        /* Define styles for hover state */
+        background-color: #f0f0f0;
+        color: #000000;
+    }
+
+    .list-group-item.active-link {
+        /* Define styles for active state */
+        background-color: #faca04;
+        color: #000000;
+    }
+    .All-Font {
+    font-family: "Poppins";
+  }
 </style>
 
-<div class="container custom-container" style="margin-top: 20px">
+<div class="container custom-container All-Font" style="margin-top: 20px">
   <ul class="nav nav-tabs">
     <li class="nav-item">
       <a class="nav-link active" data-toggle="tab" href="#dashboardTab"
@@ -77,6 +98,10 @@
           <p style="font-size: 18px; margin: 0; color: #000;">Total Points Awarded:</p>
           <p style="font-size: 32px; margin: 0; color: #000;" id="totalPointsText"><strong>0</strong></p>
         </div>
+        <div style="background-color: #e9ecef; color: #000; padding: 10px; border-radius: 5px; display: inline-block;">
+          <p style="font-size: 18px; margin: 0; color: #000;">Points to give:</p>
+          <p style="font-size: 32px; margin: 0; color: #000;" id="pointstogive"><strong>{{points_to_give}}</strong></p>
+        </div>
         <div class="chart-container" style="max-height: 400px; overflow: auto;">
           <div class="chart">
             <h2 style="font-size: 24px;">Points Awarded Chart</h2>
@@ -99,6 +124,8 @@
     <div class="tab-pane fade" id="userListTab">
       <div class="jumbotron">
         <h1 style="color: #000">User List</h1>
+        <p style="font-size: 18px; margin: 0; color: #000;">Points to give:</p>
+        <p style="font-size: 32px; margin: 0; color: #000;" id="pointstogive"><strong>{{points_to_give}}</strong></p>
         <form id="userSearchForm" class="form-inline" style="padding-bottom: 30px;">
           <div class="form-group">
               <label for="userSearch" class="mr-2" style="color: black;">Search for a User:</label>
@@ -321,6 +348,12 @@
             alert("You cannot award points to Teacher Users or Superusers.");
             return; 
             }
+
+            if (parseFloat($("#pointstogive strong").text()) === 0) {
+            // If the available points are 0, disable the "Award Points" button
+            alert("You have no points to award at the moment.");
+            return;
+  }
 
           // Auto-fill date and time fields with current date and time
           var currentDate = new Date();

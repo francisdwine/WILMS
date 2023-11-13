@@ -12,18 +12,20 @@ class VendorTransaction(models.Model):
 
     # Custom UUID field with the "WILMS" prefix
     reference_code = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
-    date = models.DateField(auto_now_add=True)
-    description = models.CharField(max_length=255)
+    venueName=models.CharField(max_length=50,null=True)
+    date=models.DateTimeField( auto_now_add=True)
+    BookDate=models.DateField(null=True)
+    startTime=models.TimeField(null=True)
+    endTime=models.TimeField(null=True)
+    purpose=models.CharField( max_length=50,default='Studying',)
+    computers=models.IntegerField(default=0)
+    total_cost = models.FloatField(default=0.0)
+    currency = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default='coins')
 
     # Foreign keys to User model from the "wallet" app
     customer = models.ForeignKey(User, on_delete=models.CASCADE)  # Assuming User is the customer
 
-    # Fields for transaction details entered by the user
-    transaction_date = models.DateField()
-    transaction_id = models.CharField(max_length=255)
-    transaction_amount = models.FloatField(default=0.0)
-
-    currency = models.CharField(max_length=10, choices=CURRENCY_CHOICES, default='coins')
+    
    
 
     def __str__(self):

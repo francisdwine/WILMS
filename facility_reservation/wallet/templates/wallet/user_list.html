@@ -22,6 +22,9 @@
     border-style: solid;
     margin-bottom: 10px;
   }
+  .jumbotron h1{
+    margin-top: -40px;
+  }
   .nav-tabs .nav-link {
     margin-right: 5px;
     color: #555; /* Default text color for inactive links */
@@ -32,6 +35,15 @@
     color: #ffff; /* Text color for active link (darker) */
     background-color: #9c7b16; /* Background color for active link */
   }
+  .list-group-item.active-link {
+    /* Define styles for active state */
+    background-color: #faca04;
+    color: #000000;
+  }    .list-group-item:hover {
+        /* Define styles for hover state */
+        background-color: #f0f0f0;
+        color: #000000;
+    }
 </style>
 
 <div class="container custom-container" style="margin-top: 20px">
@@ -73,8 +85,10 @@
                 <th>First Name</th>
                 <th>Last Name</th>
                 <th>Point Balance</th>
-                <th>Action</th>
+                <th>Award Points</th>
+
                 <th>UserType</th>
+                <th>Change User Type</th>
               </tr>
             </thead>
             <tbody>
@@ -85,9 +99,10 @@
                 <td>{{ user.first_name }}</td>
                 <td>{{ user.last_name }}</td>
                 <td>{{ user.point_balance }}</td>
+                
                 <td>
                   <button
-                    class="btn btn-primary actionsButton"
+                    class="btn btn-primary awardPointsButton"
                     style="background-color: #9c7b16"
                     data-id="{{ user.user.id }}"
                     data-recipient="{{ user.user.id }}"
@@ -96,11 +111,25 @@
                     data-pbal="{{user.point_balance}}"
                     data-acctype="{% if user.user.is_superuser %}Superuser{% elif user.user.is_staff %}Teacher User{% else %}Regular User{% endif %}"
                   >
-                    Actions
+                    Award Points
                   </button>
                 </td>
                 <td>
                     {% if user.user.is_superuser %}Superuser{% elif user.user.is_staff %}Teacher User{% else %}Regular User{% endif %}
+                </td>
+                <td>
+                  <button
+                    class="btn btn-primary changetype"
+                    style="background-color: #9c7b16"
+                    data-id="{{ user.user.id }}"
+                    data-recipient="{{ user.user.id }}"
+                    data-firstname="{{user.first_name}}"
+                    data-lastname="{{user.last_name}}"
+                    data-pbal="{{user.point_balance}}"
+                    data-acctype="{% if user.user.is_superuser %}Superuser{% elif user.user.is_staff %}Teacher User{% else %}Regular User{% endif %}"
+                  >
+                    Change Account Type
+                  </button>
                 </td>
               </tr>
               {% endfor %}

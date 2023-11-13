@@ -64,69 +64,52 @@ def login_view(request):
 class CreateVendorTransactionView(generics.CreateAPIView):
     queryset = VendorTransaction.objects.all()
     serializer_class = VendorTransactionSerializer
-    permission_classes = [IsAuthenticated]  # Require authentication
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        # Serve the HTML form for creating a VendorTransaction
         return render(request, 'create-transaction.html')
 
     def perform_create(self, serializer):
-        # Get the authenticated user
         user = self.request.user
-
-        # Get the selected currency from the form data
         currency = self.request.data.get('currency')
+        transaction_amount = float(self.request.data.get('total_cost'))
 
-        # Get the transaction amount from the form data
-        transaction_amount = float(self.request.data.get('transaction_amount'))
-
-        # Assuming there's a one-to-one relationship between User and UserProfileInfo
-        # Retrieve the user's UserProfileInfo
         profile_info = UserProfileInfo.objects.get(user=user)
 
         if currency == 'coins':
-            # Deduct the amount from the user's coin_balance in UserProfileInfo
             if profile_info.coin_balance >= transaction_amount:
                 profile_info.coin_balance -= transaction_amount
                 profile_info.save()
             else:
                 return Response({'detail': 'Insufficient coins.'}, status=status.HTTP_400_BAD_REQUEST)
         elif currency == 'points':
-            # Deduct the amount from the user's point_balance in UserProfileInfo
             if profile_info.point_balance >= transaction_amount:
                 profile_info.point_balance -= transaction_amount
                 profile_info.save()
             else:
                 return Response({'detail': 'Insufficient points.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Create the VendorTransaction instance with the user as the customer
         serializer.save(customer=user)
 
     def post(self, request, *args, **kwargs):
-        # Handle the creation of the VendorTransaction
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
 
-        # Prepare the data to be passed to the receipt template
         receipt_data = {
             'reference_code': serializer.data['reference_code'],
-            'transaction_date': serializer.data['transaction_date'],
-            'description': serializer.data['description'],
-            'transaction_id': serializer.data['transaction_id'],
-            'transaction_amount': serializer.data['transaction_amount'],
-            'currency': self.request.data.get('currency'),  # Include the selected currency
+            'transaction_date': serializer.data['date'],
+            'description': serializer.data['purpose'],
+            'transaction_amount': serializer.data['total_cost'],
+            'currency': self.request.data.get('currency'),
         }
 
-        # Render the receipt template with the receipt data
         receipt_html = render(request, 'receipt.html', receipt_data)
 
-        # Response data
         response_data = {
             'message': 'VendorTransaction created successfully',
             'reference_code': serializer.data['reference_code'],
-            'user_id': self.request.user.id,  # Assuming you want to include the user ID
+            'user_id': self.request.user.id,
             'receipt_html': receipt_html.content.decode(),
         }
 

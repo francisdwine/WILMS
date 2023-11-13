@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'wallet',
     'walletAPI',
     'rest_framework',
-    'rest_framework.authtoken'
+    'rest_framework.authtoken',
+    
 ]
 
 
@@ -70,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'wallet.context_processors.user_context_processor',
             ],
         },
     },

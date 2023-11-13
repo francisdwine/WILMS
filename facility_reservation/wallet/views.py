@@ -42,6 +42,9 @@ def is_superuser(user):
 class IndexView(View):
     def get(self, request):
         return render(request, 'wallet/index.html')
+    
+
+
 
 class SpecialView(View):
     @method_decorator(login_required)
@@ -71,7 +74,6 @@ class RegisterView(View):
         profile_form = UserProfileInfoForm(request.POST)
 
         if user_form.is_valid() and profile_form.is_valid():
-            # Check if a user with the same first and last name exists
             email = user_form.cleaned_data['email']
             first_name = profile_form.cleaned_data['first_name']
             last_name = profile_form.cleaned_data['last_name']
@@ -81,7 +83,7 @@ class RegisterView(View):
             else:
                 user = user_form.save(commit=False)
                 user.set_password(user.password)
-                # user.is_active = False
+                user.is_active = True
                 user.save()
 
                 profile = profile_form.save(commit=False)
@@ -89,18 +91,21 @@ class RegisterView(View):
                 profile.save()
 
                 registered = True
-                messages.success(request, 'Registration successful. Please log in.')
-                return redirect('wallet:user_login')
+
+                return render(request, 'wallet/registration.html', {
+                    'user_form': user_form,
+                    'profile_form': profile_form,
+                    'registered': registered,
+                    'success_message': 'Registration is successful! Please activate your account at the activation kiosk.'
+                })
 
         else:
-            messages.error(request, 'Registration failed. Please correct the errors.')
-            print(user_form.errors, profile_form.errors)
-
-        return render(request, 'wallet/registration.html', {
-            'user_form': user_form,
-            'profile_form': profile_form,
-            'registered': registered
-        })
+            return render(request, 'wallet/registration.html', {
+                'user_form': user_form,
+                'profile_form': profile_form,
+                'registered': registered,
+                'error_message': 'Registration failed. Please correct the errors.'
+            })
 
 
 class UserLoginView(View):
@@ -117,9 +122,9 @@ class UserLoginView(View):
             if user.is_active:
                 login(request, user)
                 if user.is_superuser:
-                    return redirect('wallet:dashboard')
+                    return redirect('wallet:index')
                 else:
-                    return redirect('wallet:usrdashboard')
+                    return redirect('wallet:index')
             else:
                 print("Account is not active.")
                 return HttpResponse('<script>alert("Account is not active."); window.location.href="/wallet/user_login/";</script>')
@@ -161,7 +166,7 @@ class UserListView(View):
     def get(self, request):
         if request.user.is_superuser:
             try:
-                transactions = Transaction.objects.all()
+                transactions = Transaction.objects.all().order_by('-date')
                 users = UserProfileInfo.objects.all()
                 userT=User.objects.all()
             except UserProfileInfo.DoesNotExist:
@@ -312,21 +317,22 @@ class CoinTransactionCreateAndDashboardView(LoginRequiredMixin, View):
             form.instance.user = self.request.user
             form.save()
             messages.success(request, self.success_message)
-            response_data = {
-                'status': 'success',
-                'message': 'Form submitted successfully.',
-            }
+            alert_message = 'Top-up request successfully sent.'
         else:
             # If the form is invalid, show the errors to the user.
             messages.error(request, "Form is not valid. Please check the fields.")
-            response_data = {
-                'status': 'fail',
-                'message': 'Form submission failed. Please check the fields.',
-                'errors': form.errors,
-            }
-        
-        # Return a JSON response with the appropriate status and message
-        return JsonResponse(response_data)
+            alert_message = 'Top-up request failed.'
+
+        # Generating JavaScript to show an alert
+        response = f'''
+            <script>
+                alert("{alert_message}");
+                // You can redirect the user or perform any other actions after the alert.
+                window.location.href="/wallet/createCoin/";
+            </script>
+        '''
+
+        return HttpResponse(response)
 
 
 
@@ -512,6 +518,7 @@ class TeacherUserListView(View):
             users = UserProfileInfo.objects.all()
             userT = get_user_model().objects.all()
             teacher_profile = UserProfileInfo.objects.get(user=request.user)  # Get the teacher's profile
+            points_to_give = teacher_profile.points_to_give
         except UserProfileInfo.DoesNotExist:
             transactions = []
 
@@ -520,6 +527,7 @@ class TeacherUserListView(View):
             'transactions': transactions,
             'userT': userT,
             'teacher_profile': teacher_profile,
+            'points_to_give': points_to_give,
         }
         return render(request, 'wallet/teacher/teacher_user_list.html', context)
 
@@ -585,8 +593,19 @@ class AdminAwardPointsToTeacherView(View):
     @method_decorator(user_passes_test(lambda user: user.is_superuser))
     def get(self, request):
         # Retrieve a list of teacher users who have is_staff set to true
-        teachers = User.objects.filter(is_staff=True)
-        return render(request, self.template_name, {'teachers': teachers})
+        try:
+            # Filter both User and UserProfileInfo by is_staff
+            teachers = User.objects.filter(is_staff=True)
+            teacher_profiles = UserProfileInfo.objects.filter(user__in=teachers)
+        except UserProfileInfo.DoesNotExist:
+            teachers = []
+            teacher_profiles = []
+
+        context = {
+            'teachers': teachers,
+            'teacher_profiles': teacher_profiles,
+        }
+        return render(request, self.template_name, context)
 
     @method_decorator(user_passes_test(lambda user: user.is_superuser))
     def post(self, request):
@@ -626,6 +645,7 @@ class ActivateAccountView(View):
         email = request.POST.get('email')
         password = request.POST.get('password')
         rfid_value = request.POST.get('rfid_value')
+        print(rfid_value)
 
         user = authenticate(request, email=email, password=password)
         print(user)
@@ -633,6 +653,9 @@ class ActivateAccountView(View):
         if user:
             # Check if the user exists and is not active
             user_profile = UserProfileInfo.objects.get(user=user)
+            print(user)
+            print(user_profile)
+            
 
             if not user.is_verified:
                 # Check if the user is not verified
@@ -640,13 +663,14 @@ class ActivateAccountView(View):
                     # If the RFID value is initially null, store the submitted RFID value
                     user_profile.rfid_value = rfid_value
                     user_profile.save()
+                    print(user_profile.rfid_value)
 
                 if rfid_value == user_profile.rfid_value:
                     # If the RFID value matches the stored value, activate the user's account
                     user.is_active = True
                     user.is_verified = True  # Mark the user as verified
                     user.save()
-                    return JsonResponse({'success': True, 'message': 'Account activated.'})
+                    return HttpResponse('<script>alert("Account Activated"); window.location.href="/wallet/activate_account/";</script>')
                 else:
                     return JsonResponse({'success': False, 'message': 'Invalid RFID value.'})
             else:
@@ -655,7 +679,7 @@ class ActivateAccountView(View):
                 
         else:
             # return JsonResponse({'success': False, 'message': 'Invalid login details supplied or the account is already active.'})
-            return HttpResponse('<script>alert("Invalid login details supplied or the account is already active");";</script>')
+            return HttpResponse('<script>alert("Invalid login details supplied or the account is already active"); window.location.href="/wallet/activate_account/"</script>')
   
 
 # Grab values

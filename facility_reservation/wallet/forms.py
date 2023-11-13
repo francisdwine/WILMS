@@ -34,7 +34,7 @@ class CoinTransactionForm(forms.ModelForm):
             self.fields['requestee'].initial = user
         
 
-        self.fields['requestee'].widget = forms.TextInput(attrs={'readonly': 'readonly'})
+        self.fields['requestee'].widget = forms.HiddenInput()
 
         
 
