@@ -11,8 +11,8 @@ urlpatterns = [
     path('walletAPI/', include(('walletAPI.urls', 'walletAPI'), namespace='walletAPI')),
     path('' , views.IndexView.as_view(), name='index'),
     path('api/',include('api.urls')),
-    path('',include('polls.urls',)),
-    path('',include('wiladmin.urls',)),
+    path('cc/',include('polls.urls',)),
+    path('ccAdmin/',include('wiladmin.urls',)),
     path('password_reset/', auth_views.PasswordResetView.as_view(template_name='wallet/password_reset.html'), name="password_reset"),
 
     path('password_reset_done/', auth_views.PasswordResetDoneView.as_view(template_name='wallet/password_reset_done.html'), name = "password_reset_done"),
